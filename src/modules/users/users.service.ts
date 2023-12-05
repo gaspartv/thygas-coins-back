@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
+import { FindManyUserDto } from './dtos/internal/find-many-user.dto';
+import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
 import { UsersRepository } from './repositories/users.repository';
 import { User } from './users.entity';
+import { UserMapper } from './users.mapper';
 
 @Injectable()
 export class UsersService {
@@ -48,5 +51,35 @@ export class UsersService {
         throw new ConflictException('whatsapp already exists');
       }
     }
+  }
+
+  async findMany(
+    where: FindManyUserDto,
+    orderBy: OrderByUserDto,
+    page: number,
+    size: number,
+  ) {
+    const data = await this.repository.findMany(where, orderBy, page, size);
+
+    const uri = `${where.disabledAt ? '?disabled=true' : ''}${
+      where.deletedAt ? '?deleted=true' : ''
+    }${orderBy.createdAt ? '?created-order=' + orderBy.createdAt : ''}${
+      orderBy.email ? '?email-order=' + orderBy.email : ''
+    }${orderBy.firstName ? '?firstName-order=' + orderBy.firstName : ''}${
+      orderBy.lastName ? '?lastName-order=' + orderBy.lastName : ''
+    }`;
+
+    return {
+      total: data.count,
+      previus: `${process.env.FRONT_URL}/users/find-many?page=${
+        page <= 1 ? 1 : page - 1
+      }&size=${size}${uri}`,
+      next: `${process.env.FRONT_URL}/users/find-many?page=${
+        page + 1
+      }&size=${size}${uri}`,
+      result: data.users.map((user: UserResponseDto) =>
+        UserMapper.response(user),
+      ),
+    };
   }
 }

@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
+import { FindManyUserDto } from './dtos/internal/find-many-user.dto';
+import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
@@ -33,5 +35,14 @@ export class UsersUseCase {
   async find(id: string): Promise<UserResponseDto> {
     const user = await this.service.findOrThrow(id);
     return UserMapper.response(user);
+  }
+
+  async findMany(
+    where: FindManyUserDto,
+    orderBy: OrderByUserDto,
+    page: number,
+    size: number,
+  ) {
+    return await this.service.findMany(where, orderBy, page, size);
   }
 }

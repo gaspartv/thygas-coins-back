@@ -1,4 +1,4 @@
-export class FindWhereUserDto {
+export class FindUserDto {
   id?: string;
   disabledAt?: Date;
   deletedAt?: Date;
