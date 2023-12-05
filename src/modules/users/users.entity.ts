@@ -1,6 +1,9 @@
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { Language, UserPolice } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import { DateClass } from '../../common/classes/date.class';
+import { CreateUserDto } from './dtos/request/create-user.dto';
+import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserLanguageEnum } from './enum/user-language.enum';
 import { UserPoliceEnum } from './enum/user-police.enum';
 
@@ -279,5 +282,34 @@ export class User extends DateClass {
         'police needs to be normal, viewer, admin or super',
       );
     }
+  }
+
+  create(dto: CreateUserDto): void {
+    const password = randomUUID();
+    this.setWhatsapp(dto.whatsapp);
+    this.setId(randomUUID());
+    this.setCreatedAt(new Date());
+    this.setUpdatedAt(new Date());
+    this.setDisabledAt(null);
+    this.setDeletedAt(null);
+    this.setFirstName(dto.firstName);
+    this.setLastName(dto.lastName);
+    this.setEmail(dto.email);
+    this.setPassword(password);
+    this.setIdentityDocument(dto.identityDocument);
+    this.setDarkMode(dto.darkMode);
+    this.setLanguage(dto.language);
+    this.setPolice(dto.police);
+  }
+
+  update(dto: UpdateUserDto): void {
+    this.setUpdatedAt(new Date());
+    if (dto.firstName) this.setFirstName(dto.firstName);
+    if (dto.lastName) this.setLastName(dto.lastName);
+    if (dto.email) this.setEmail(dto.email);
+    if (dto.identityDocument) this.setIdentityDocument(dto.identityDocument);
+    if (dto.whatsapp) this.setWhatsapp(dto.whatsapp);
+    if (dto.darkMode) this.setDarkMode(dto.darkMode);
+    if (dto.language) this.setLanguage(dto.language);
   }
 }

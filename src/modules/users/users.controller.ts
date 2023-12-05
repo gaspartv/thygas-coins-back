@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common/decorators/core/controller.decorator';
 import { HttpCode } from '@nestjs/common/decorators/http/http-code.decorator';
 import {
+  Get,
   Patch,
   Post,
 } from '@nestjs/common/decorators/http/request-mapping.decorator';
@@ -11,6 +12,8 @@ import {
 import { ParseUUIDPipe } from '@nestjs/common/pipes/parse-uuid.pipe';
 import { ApiTags } from '@nestjs/swagger';
 import { CustomApiCreateUserResponse } from './decorators/api-create-user-response.decorator';
+import { CustomApiFindUserResponse } from './decorators/api-find-user-response.decorator';
+import { CustomApiUpdateUserResponse } from './decorators/api-update-user-response.decorator';
 import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
@@ -24,16 +27,24 @@ export class UsersController {
   @Post('create')
   @HttpCode(201)
   @CustomApiCreateUserResponse()
-  createUser(@Body() body: CreateUserDto): Promise<UserResponseDto> {
-    return this.useCase.createUser(body);
+  create(@Body() body: CreateUserDto): Promise<UserResponseDto> {
+    return this.useCase.create(body);
   }
 
   @Patch('update/:id')
   @HttpCode(200)
-  updateUser(
+  @CustomApiUpdateUserResponse()
+  update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.useCase.updateUser(id, body);
+    return this.useCase.update(id, body);
+  }
+
+  @Get('find/:id')
+  @HttpCode(200)
+  @CustomApiFindUserResponse()
+  find(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
+    return this.useCase.find(id);
   }
 }

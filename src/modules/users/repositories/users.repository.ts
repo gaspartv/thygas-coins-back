@@ -4,5 +4,5 @@ import { User } from '../users.entity';
 
 export abstract class UsersRepository {
   abstract save(user: User): Promise<UserResponseDto>;
-  abstract findWhere(where: FindWhereUserDto): Promise<UserResponseDto>;
+  abstract find(where: FindWhereUserDto): Promise<UserResponseDto>;
 }

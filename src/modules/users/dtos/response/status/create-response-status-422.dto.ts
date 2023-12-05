@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UserStatus422Response {
+export class UserCreateStatus422Response {
   @ApiProperty({
     example: [
       'firstName must be longer than or equal to 2 characters',

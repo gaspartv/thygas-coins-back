@@ -17,7 +17,7 @@ export class UsersPrismaRepository implements UsersRepository {
     });
   }
 
-  async findWhere(where: FindWhereUserDto): Promise<UserResponseDto> {
+  async find(where: FindWhereUserDto): Promise<UserResponseDto> {
     return await this.prisma.user.findFirst({
       where,
     });
