@@ -115,7 +115,7 @@ export class UsersService {
     };
   }
 
-  async htmlCreateUser(name: string) {
+  async htmlCreateUser(name: string, token: string) {
     const createUserTemplate = resolve(
       mainDirname,
       'src',
@@ -127,7 +127,7 @@ export class UsersService {
     const variables = {
       name,
       companyName: process.env.COMPANY_NAME,
-      link: `${process.env.URL_FRONT}/change-password/COLOCAR_O_TOKEN_AQUI`,
+      link: `${process.env.URL_FRONT}/change-password/${token}`,
     };
     const templateFileContent = await fs.promises.readFile(createUserTemplate, {
       encoding: 'utf-8',
@@ -136,7 +136,7 @@ export class UsersService {
     return parseTemplate(variables);
   }
 
-  async htmlChangeEmail(name: string) {
+  async htmlChangeEmail(name: string, token: string) {
     const createUserTemplate = resolve(
       mainDirname,
       'src',
@@ -148,7 +148,7 @@ export class UsersService {
     const variables = {
       name,
       companyName: process.env.COMPANY_NAME,
-      link: `${process.env.URL_FRONT}/change-email/COLOCAR_O_TOKEN_AQUI`,
+      link: `${process.env.URL_FRONT}/change-email/${token}`,
     };
     const templateFileContent = await fs.promises.readFile(createUserTemplate, {
       encoding: 'utf-8',
@@ -157,7 +157,7 @@ export class UsersService {
     return parseTemplate(variables);
   }
 
-  async htmlChangePassword(name: string) {
+  async htmlChangePassword(name: string, token: string) {
     const createUserTemplate = resolve(
       mainDirname,
       'src',
@@ -169,7 +169,7 @@ export class UsersService {
     const variables = {
       name,
       companyName: process.env.COMPANY_NAME,
-      link: `${process.env.URL_FRONT}/change-password/COLOCAR_O_TOKEN_AQUI`,
+      link: `${process.env.URL_FRONT}/change-password/${token}`,
     };
     const templateFileContent = await fs.promises.readFile(createUserTemplate, {
       encoding: 'utf-8',

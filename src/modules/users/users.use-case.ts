@@ -5,6 +5,8 @@ import { FileProvider } from '../../providers/file/file.provider';
 import { HttpService } from '../../providers/http/http.provider';
 import { createUserTemplate } from '../../providers/http/templates/create-user';
 import { EmailProvider } from '../../providers/mail/email.service';
+import { TokenTypeEnum } from '../tokens/enum/token-type.enum';
+import { TokensService } from '../tokens/tokens.service';
 import { FindManyUserDto } from './dtos/internal/find-many-user.dto';
 import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { CreateUserDto } from './dtos/request/create-user.dto';
@@ -22,6 +24,7 @@ export class UsersUseCase {
     private readonly email: EmailProvider,
     private readonly http: HttpService,
     private readonly file: FileProvider,
+    private readonly tokens: TokensService,
   ) {}
 
   async create(dto: CreateUserDto) {
@@ -33,7 +36,8 @@ export class UsersUseCase {
       user.getWhatsapp(),
     );
     const save = await this.service.save(user);
-    const html = await this.service.htmlCreateUser(save.firstName);
+    const token = await this.tokens.create(save.id, TokenTypeEnum.PASSWORD);
+    const html = await this.service.htmlCreateUser(save.firstName, token.id);
     const text = createUserTemplate(save.firstName);
     const url = `${process.env.WHATSAPP_FAKE_URL}/message/sendText/${process.env.WHATSAPP_FAKE_INSTANCE_NAME}`;
     const body = {
@@ -131,7 +135,8 @@ export class UsersUseCase {
     user.setUpdatedAt(new Date());
     user.setEmail(email);
     const save = await this.service.save(user);
-    const html = await this.service.htmlChangeEmail(save.firstName);
+    const token = await this.tokens.create(save.id, TokenTypeEnum.PASSWORD);
+    const html = await this.service.htmlChangeEmail(save.firstName, token.id);
     this.email.send({
       subject: 'Change email - ' + process.env.COMPANY_NAME,
       to: save.email,
@@ -143,7 +148,14 @@ export class UsersUseCase {
   async updatePassword(id: string) {
     const userFound = await this.service.findOrThrow(id);
     const user = new User(userFound);
-    const html = await this.service.htmlChangePassword(user.getFirstName());
+    const token = await this.tokens.create(
+      user.getId(),
+      TokenTypeEnum.PASSWORD,
+    );
+    const html = await this.service.htmlChangePassword(
+      user.getFirstName(),
+      token.id,
+    );
     this.email.send({
       subject: 'Change password - ' + process.env.COMPANY_NAME,
       to: user.getEmail(),
