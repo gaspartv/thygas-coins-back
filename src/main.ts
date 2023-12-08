@@ -6,8 +6,10 @@ import {
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyFileUpload from 'fastify-file-upload';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { mainDirname } from './root-dirname';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -37,6 +39,8 @@ async function bootstrap() {
     safeFileNames: '/.(jpg|jpeg|png)$/i',
     preserveExtension: true,
   });
+
+  app.useStaticAssets({ root: join(mainDirname, 'tmp') });
 
   const config = new DocumentBuilder()
     .addBearerAuth()

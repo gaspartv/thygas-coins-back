@@ -1,3 +1,4 @@
+import { FileModule } from './providers/file/file.module';
 import { HttpModule } from './providers/http/http.module';
 import { SendGridModule } from '@anchan828/nest-sendgrid';
 import { Module } from '@nestjs/common/decorators/modules/module.decorator';
@@ -7,6 +8,7 @@ import { EmailModule } from './providers/mail/email.module';
 
 @Module({
   imports: [
+    FileModule,
     HttpModule,
     EmailModule,
     UsersModule,

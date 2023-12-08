@@ -19,7 +19,7 @@ interface UserInterface {
   lastName?: string;
   email?: string;
   password?: string;
-  imageUri?: string;
+  imageUri?: string | null;
   identityDocument?: string;
   whatsapp?: string;
   darkMode?: boolean;
@@ -33,7 +33,7 @@ export class User extends DateClass {
   private lastName: string;
   private email: string;
   private password: string;
-  private imageUri: string;
+  private imageUri: string | null;
   private identityDocument: string;
   private whatsapp: string;
   private darkMode: boolean;
@@ -191,14 +191,16 @@ export class User extends DateClass {
     }
   }
 
-  setImageUri(imageUri: string): void {
-    const regex =
-      /^\/[a-zA-Z0-9.-]+\/[a-zA-Z0-9.-]+\.(png|jpg|jpeg|gif|bmp|tiff|tif|svg|webp|ico)$/;
-
-    if (regex.test(imageUri)) {
-      this.imageUri = imageUri;
+  setImageUri(imageUri: string | null): void {
+    if (imageUri) {
+      const regex = /\.(jpg|jpeg|png|gif|bmp|tiff|tif|svg|webp|ico)$/;
+      if (regex.test(imageUri)) {
+        this.imageUri = '/user/avatar/' + imageUri;
+      } else {
+        throw new ConflictException('URI is not valid');
+      }
     } else {
-      throw new ConflictException('URI is not valid');
+      this.imageUri = null;
     }
   }
 

@@ -21,6 +21,7 @@ import { CustomApiUpdateUserResponse } from './decorators/api-update-user-respon
 import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateEmailUserDto } from './dtos/request/update-email-user.dto';
+import { UploadFileUserDto } from './dtos/request/update-image-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
 import { UsersUseCase } from './users.use-case';
@@ -117,5 +118,14 @@ export class UsersController {
   @Patch('update-password/:id')
   updatePassword(@Param('id', ParseUUIDPipe) id: string) {
     return this.useCase.updatePassword(id);
+  }
+
+  @Patch('update-image/:id')
+  updateImage(
+    @Body() dto: UploadFileUserDto,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    const file = dto.file;
+    return this.useCase.updateImage(id, file);
   }
 }

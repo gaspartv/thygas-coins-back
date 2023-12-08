@@ -1,11 +1,14 @@
-import { ConflictException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
+import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
+import { join } from 'path';
+import { FileProvider } from '../../providers/file/file.provider';
 import { HttpService } from '../../providers/http/http.provider';
 import { createUserTemplate } from '../../providers/http/templates/create-user';
 import { EmailProvider } from '../../providers/mail/email.service';
 import { FindManyUserDto } from './dtos/internal/find-many-user.dto';
 import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { CreateUserDto } from './dtos/request/create-user.dto';
+import { IFileUpload } from './dtos/request/update-image-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
 import { User } from './users.entity';
@@ -18,6 +21,7 @@ export class UsersUseCase {
     private readonly service: UsersService,
     private readonly email: EmailProvider,
     private readonly http: HttpService,
+    private readonly file: FileProvider,
   ) {}
 
   async create(dto: CreateUserDto) {
@@ -146,5 +150,27 @@ export class UsersUseCase {
       html,
     });
     return { message: 'email to change password sent' };
+  }
+
+  async updateImage(id: string, file: IFileUpload) {
+    const userFound = await this.service.findOrThrow(id);
+    if (userFound.imageUri) {
+      try {
+        this.file.remove(join('user', 'avatar', userFound.imageUri));
+      } catch (error) {
+        console.error(error.message);
+      }
+    }
+    const user = new User(userFound);
+    if (file) {
+      const avatarUri = this.file.save(file, join('user', 'avatar'));
+      user.setImageUri(avatarUri);
+      const save = await this.service.save(user);
+      return UserMapper.response(save);
+    } else {
+      user.setImageUri(null);
+      const save = await this.service.save(user);
+      return UserMapper.response(save);
+    }
   }
 }

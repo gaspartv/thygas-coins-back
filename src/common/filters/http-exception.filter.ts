@@ -9,11 +9,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
-
     let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     let error = 'Internal Server Error';
     let message: string[] = [];
-
     if (exception.getStatus) {
       statusCode = exception.getStatus();
       error = exception.response.error || 'Internal Server Error';
@@ -22,7 +20,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
           ? [exception.response.message]
           : exception.response.message || [error];
     }
-
     response.status(statusCode).send({
       message,
       error,
