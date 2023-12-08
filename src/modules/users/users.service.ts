@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
+import * as fs from 'fs';
+import handlebars from 'handlebars';
+import { resolve } from 'path';
+import { mainDirname } from '../../root-dirname';
 import { Format } from '../../utils/format-whatsapp';
 import { FindManyUserDto } from './dtos/internal/find-many-user.dto';
 import { OrderByUserDto } from './dtos/internal/order-user.dto';
@@ -95,13 +99,13 @@ export class UsersService {
       total: data.count,
       previus:
         page > 1
-          ? `${process.env.FRONT_URL}/users/find-many?page=${
+          ? `${process.env.URL_BACK}/users/find-many?page=${
               page <= 1 ? 1 : page - 1
             }&size=${size}${uri}`
           : null,
       next:
         page * size < data.count
-          ? `${process.env.FRONT_URL}/users/find-many?page=${
+          ? `${process.env.URL_BACK}/users/find-many?page=${
               page + 1
             }&size=${size}${uri}`
           : null,
@@ -109,5 +113,26 @@ export class UsersService {
         UserMapper.response(user),
       ),
     };
+  }
+
+  async htmlCreateUser(name: string) {
+    const createUserTemplate = resolve(
+      mainDirname,
+      'src',
+      'providers',
+      'mail',
+      'templates',
+      'create-user.hbs',
+    );
+    const variables = {
+      name,
+      companyName: process.env.COMPANY_NAME,
+      link: `${process.env.URL_FRONT}/change-password/COLOCAR_O_TOKEN_AQUI`,
+    };
+    const templateFileContent = await fs.promises.readFile(createUserTemplate, {
+      encoding: 'utf-8',
+    });
+    const parseTemplate = handlebars.compile(templateFileContent);
+    return parseTemplate(variables);
   }
 }
