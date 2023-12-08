@@ -1,4 +1,3 @@
-import { ParseBoolPipe, ParseIntPipe } from '@nestjs/common';
 import { Controller } from '@nestjs/common/decorators/core/controller.decorator';
 import { HttpCode } from '@nestjs/common/decorators/http/http-code.decorator';
 import {
@@ -11,6 +10,8 @@ import {
   Param,
   Query,
 } from '@nestjs/common/decorators/http/route-params.decorator';
+import { ParseBoolPipe } from '@nestjs/common/pipes/parse-bool.pipe';
+import { ParseIntPipe } from '@nestjs/common/pipes/parse-int.pipe';
 import { ParseUUIDPipe } from '@nestjs/common/pipes/parse-uuid.pipe';
 import { ApiTags } from '@nestjs/swagger';
 import { CustomApiCreateUserResponse } from './decorators/api-create-user-response.decorator';
@@ -75,7 +76,7 @@ export class UsersController {
       firstName: firstNameOrder ? firstNameOrder : undefined,
       lastName: lastNameOrder ? lastNameOrder : undefined,
     };
-    let order: OrderByUserDto;
+    let order: OrderByUserDto | undefined;
     for (const key in orderBy) {
       if (orderBy[key] !== undefined) {
         if (key === 'createdAt') order = { createdAt: orderBy[key] };
@@ -85,6 +86,6 @@ export class UsersController {
         break;
       }
     }
-    return this.useCase.findMany(where, order, page, size);
+    return this.useCase.findMany(where, page, size, order);
   }
 }

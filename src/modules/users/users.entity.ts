@@ -2,6 +2,7 @@ import { ConflictException } from '@nestjs/common/exceptions/conflict.exception'
 import { Language, UserPolice } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { DateClass } from '../../common/classes/date.class';
+import { Format } from '../../utils/format-whatsapp';
 import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserLanguageEnum } from './enum/user-language.enum';
@@ -214,30 +215,7 @@ export class User extends DateClass {
   }
 
   setWhatsapp(whatsapp: string): void {
-    const whatsappVerify = Number(whatsapp);
-
-    if (
-      whatsapp.length < 10 ||
-      whatsapp.length > 13 ||
-      Number.isNaN(whatsappVerify)
-    ) {
-      throw new ConflictException(
-        'invalid whatsapp. Exempla: 55xx9xxxxxxxx - Between 10 and 13 numbers entered',
-      );
-    }
-
-    let whatsappFormat = whatsapp;
-
-    if (whatsapp.toString()[0] !== '5' && whatsapp[1].toString() !== '5') {
-      whatsappFormat = '55' + whatsapp.toString();
-    }
-
-    if (whatsappFormat.length === 12) {
-      whatsappFormat =
-        whatsappFormat.substring(0, 4) + '9' + whatsappFormat.substring(4);
-    }
-
-    this.whatsapp = whatsappFormat;
+    this.whatsapp = Format.whatsapp(whatsapp);
   }
 
   setDarkMode(darkMode: boolean): void {

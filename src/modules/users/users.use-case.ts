@@ -27,6 +27,12 @@ export class UsersUseCase {
   async update(id: string, dto: UpdateUserDto): Promise<UserResponseDto> {
     const userFound = await this.service.findOrThrow(id);
     const user = new User(userFound);
+    await this.service.verifyUnique(
+      dto.email,
+      dto.identityDocument,
+      dto.whatsapp,
+      user,
+    );
     user.update(dto);
     const save = await this.service.save(user);
     return UserMapper.response(save);
@@ -39,10 +45,10 @@ export class UsersUseCase {
 
   async findMany(
     where: FindManyUserDto,
-    orderBy: OrderByUserDto,
     page: number,
     size: number,
+    orderBy?: OrderByUserDto | undefined,
   ) {
-    return await this.service.findMany(where, orderBy, page, size);
+    return await this.service.findMany(where, page, size, orderBy);
   }
 }

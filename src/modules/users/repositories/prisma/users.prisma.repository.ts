@@ -27,9 +27,9 @@ export class UsersPrismaRepository implements UsersRepository {
 
   async findMany(
     dto: FindManyUserDto,
-    order: OrderByUserDto,
     page: number,
     size: number,
+    order?: OrderByUserDto,
   ) {
     const where = {
       disabledAt: dto.disabledAt
@@ -52,30 +52,34 @@ export class UsersPrismaRepository implements UsersRepository {
       where,
     });
 
+    const orderBy: any = order
+      ? {
+          createdAt: order.createdAt
+            ? order.createdAt === 'asc'
+              ? 'asc'
+              : 'desc'
+            : undefined,
+          email: order.email
+            ? order.email === 'asc'
+              ? 'asc'
+              : 'desc'
+            : undefined,
+          firstName: order.firstName
+            ? order.firstName === 'asc'
+              ? 'asc'
+              : 'desc'
+            : undefined,
+          lastName: order.lastName
+            ? order.lastName === 'asc'
+              ? 'asc'
+              : 'desc'
+            : undefined,
+        }
+      : { createdAt: 'desc' };
+
     const users = await this.prisma.user.findMany({
       where,
-      orderBy: {
-        createdAt: order.createdAt
-          ? order.createdAt === 'asc'
-            ? 'asc'
-            : 'desc'
-          : undefined,
-        email: order.email
-          ? order.email === 'asc'
-            ? 'asc'
-            : 'desc'
-          : undefined,
-        firstName: order.firstName
-          ? order.firstName === 'asc'
-            ? 'asc'
-            : 'desc'
-          : undefined,
-        lastName: order.lastName
-          ? order.lastName === 'asc'
-            ? 'asc'
-            : 'desc'
-          : undefined,
-      },
+      orderBy,
       skip,
       take,
     });

@@ -9,8 +9,8 @@ export abstract class UsersRepository {
   abstract find(where: FindUserDto): Promise<UserResponseDto>;
   abstract findMany(
     where: FindManyUserDto,
-    orderBy: OrderByUserDto,
     page: number,
     size: number,
+    orderBy?: OrderByUserDto | undefined,
   ): Promise<any>;
 }
