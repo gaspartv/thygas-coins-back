@@ -1,3 +1,4 @@
+import { ConflictException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { HttpService } from '../../providers/http/http.provider';
 import { createUserTemplate } from '../../providers/http/templates/create-user';
@@ -19,7 +20,7 @@ export class UsersUseCase {
     private readonly http: HttpService,
   ) {}
 
-  async create(dto: CreateUserDto): Promise<UserResponseDto> {
+  async create(dto: CreateUserDto) {
     const user = new User({});
     user.create(dto);
     await this.service.verifyUnique(
@@ -45,14 +46,14 @@ export class UsersUseCase {
       to: save.email,
       html,
     });
-    return UserMapper.response(save);
+    return { message: 'email to create password sent' };
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<UserResponseDto> {
     const userFound = await this.service.findOrThrow(id);
     const user = new User(userFound);
     await this.service.verifyUnique(
-      dto.email,
+      null,
       dto.identityDocument,
       dto.whatsapp,
       user,
@@ -74,5 +75,76 @@ export class UsersUseCase {
     orderBy?: OrderByUserDto | undefined,
   ) {
     return await this.service.findMany(where, page, size, orderBy);
+  }
+
+  async disable(id: string) {
+    const userFound = await this.service.findOrThrow(id);
+    const user = new User(userFound);
+    if (user.disabledAt !== null) {
+      throw new ConflictException('user already disabled');
+    }
+    user.setUpdatedAt(new Date());
+    user.setDisabledAt(new Date());
+    const save = await this.service.save(user);
+    return UserMapper.response(save);
+  }
+
+  async enable(id: string) {
+    const userFound = await this.service.findOrThrow(id);
+    const user = new User(userFound);
+    if (user.disabledAt === null) {
+      throw new ConflictException('user already enabled');
+    }
+    user.setUpdatedAt(new Date());
+    user.setDisabledAt(null);
+    const save = await this.service.save(user);
+    return UserMapper.response(save);
+  }
+
+  async delete(id: string) {
+    const userFound = await this.service.findOrThrow(id);
+    const user = new User(userFound);
+    if (user.deletedAt !== null) {
+      throw new ConflictException('user already deleted');
+    }
+    if (user.disabledAt === null) user.setDisabledAt(new Date());
+    user.setUpdatedAt(new Date());
+    user.setDeletedAt(new Date());
+    const save = await this.service.save(user);
+    return UserMapper.response(save);
+  }
+
+  async updateEmail(id: string, email: string) {
+    const userIdFound = await this.service.findOrThrow(id);
+    const userEmailFound = await this.service.findEmail(email);
+    if (userEmailFound) {
+      if (userEmailFound.email === userIdFound.email) {
+        throw new ConflictException('this is your email');
+      }
+      throw new ConflictException('user already exists');
+    }
+    const user = new User(userIdFound);
+    user.setUpdatedAt(new Date());
+    user.setEmail(email);
+    const save = await this.service.save(user);
+    const html = await this.service.htmlChangeEmail(save.firstName);
+    this.email.send({
+      subject: 'Change email - ' + process.env.COMPANY_NAME,
+      to: save.email,
+      html,
+    });
+    return { message: 'email to change email sent' };
+  }
+
+  async updatePassword(id: string) {
+    const userFound = await this.service.findOrThrow(id);
+    const user = new User(userFound);
+    const html = await this.service.htmlChangePassword(user.getFirstName());
+    this.email.send({
+      subject: 'Change password - ' + process.env.COMPANY_NAME,
+      to: user.getEmail(),
+      html,
+    });
+    return { message: 'email to change password sent' };
   }
 }

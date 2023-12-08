@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common/decorators/core/controller.decorator';
 import { HttpCode } from '@nestjs/common/decorators/http/http-code.decorator';
 import {
+  Delete,
   Get,
   Patch,
   Post,
@@ -19,6 +20,7 @@ import { CustomApiFindUserResponse } from './decorators/api-find-user-response.d
 import { CustomApiUpdateUserResponse } from './decorators/api-update-user-response.decorator';
 import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { CreateUserDto } from './dtos/request/create-user.dto';
+import { UpdateEmailUserDto } from './dtos/request/update-email-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
 import { UsersUseCase } from './users.use-case';
@@ -31,7 +33,7 @@ export class UsersController {
   @Post('create')
   @HttpCode(201)
   @CustomApiCreateUserResponse()
-  create(@Body() body: CreateUserDto): Promise<UserResponseDto> {
+  create(@Body() body: CreateUserDto) {
     return this.useCase.create(body);
   }
 
@@ -87,5 +89,33 @@ export class UsersController {
       }
     }
     return this.useCase.findMany(where, page, size, order);
+  }
+
+  @Patch('disabled/:id')
+  disable(@Param('id', ParseUUIDPipe) id: string) {
+    return this.useCase.disable(id);
+  }
+
+  @Patch('enabled/:id')
+  enable(@Param('id', ParseUUIDPipe) id: string) {
+    return this.useCase.enable(id);
+  }
+
+  @Delete('deleted/:id')
+  delete(@Param('id', ParseUUIDPipe) id: string) {
+    return this.useCase.delete(id);
+  }
+
+  @Patch('update-email/:id')
+  updateEmail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateEmailUserDto,
+  ) {
+    return this.useCase.updateEmail(id, body.email);
+  }
+
+  @Patch('update-password/:id')
+  updatePassword(@Param('id', ParseUUIDPipe) id: string) {
+    return this.useCase.updatePassword(id);
   }
 }

@@ -1,5 +1,6 @@
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { Language, UserPolice } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
 import { DateClass } from '../../common/classes/date.class';
 import { Format } from '../../utils/format-whatsapp';
@@ -174,7 +175,7 @@ export class User extends DateClass {
     }
   }
 
-  setPassword(password: string) {
+  async setPassword(password: string): Promise<void> {
     const regex =
       /^(?=.*[!@#$%^&*(),.?":{}|<>])(?=.*[A-Z])(?=.*[a-z])(?!.*(.)\1{2,})(?!.*\d{3,}).{8,50}$/;
 
@@ -182,7 +183,7 @@ export class User extends DateClass {
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
     if (regex.test(password) || uuidRegex.test(password)) {
-      this.password = password;
+      this.password = await bcrypt.hash(password, 7);
     } else {
       throw new ConflictException(
         'the password must be between 8 and 50 characters long, contain at least one uppercase letter, one lowercase letter, one special character, and cannot have numeric or alphabetic sequences of three characters or more',
@@ -284,7 +285,6 @@ export class User extends DateClass {
     this.setUpdatedAt(new Date());
     if (dto.firstName) this.setFirstName(dto.firstName);
     if (dto.lastName) this.setLastName(dto.lastName);
-    if (dto.email) this.setEmail(dto.email);
     if (dto.identityDocument) this.setIdentityDocument(dto.identityDocument);
     if (dto.whatsapp) this.setWhatsapp(dto.whatsapp);
     if (dto.darkMode) this.setDarkMode(dto.darkMode);

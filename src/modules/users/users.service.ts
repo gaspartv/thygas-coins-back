@@ -135,4 +135,50 @@ export class UsersService {
     const parseTemplate = handlebars.compile(templateFileContent);
     return parseTemplate(variables);
   }
+
+  async htmlChangeEmail(name: string) {
+    const createUserTemplate = resolve(
+      mainDirname,
+      'src',
+      'providers',
+      'mail',
+      'templates',
+      'change-email.hbs',
+    );
+    const variables = {
+      name,
+      companyName: process.env.COMPANY_NAME,
+      link: `${process.env.URL_FRONT}/change-email/COLOCAR_O_TOKEN_AQUI`,
+    };
+    const templateFileContent = await fs.promises.readFile(createUserTemplate, {
+      encoding: 'utf-8',
+    });
+    const parseTemplate = handlebars.compile(templateFileContent);
+    return parseTemplate(variables);
+  }
+
+  async htmlChangePassword(name: string) {
+    const createUserTemplate = resolve(
+      mainDirname,
+      'src',
+      'providers',
+      'mail',
+      'templates',
+      'change-password.hbs',
+    );
+    const variables = {
+      name,
+      companyName: process.env.COMPANY_NAME,
+      link: `${process.env.URL_FRONT}/change-password/COLOCAR_O_TOKEN_AQUI`,
+    };
+    const templateFileContent = await fs.promises.readFile(createUserTemplate, {
+      encoding: 'utf-8',
+    });
+    const parseTemplate = handlebars.compile(templateFileContent);
+    return parseTemplate(variables);
+  }
+
+  async findEmail(email: string) {
+    return await this.repository.find({ email });
+  }
 }

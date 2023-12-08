@@ -1,7 +1,6 @@
 import {
   IsAlpha,
   IsBoolean,
-  IsEmail,
   IsEnum,
   IsPhoneNumber,
   IsString,
@@ -17,9 +16,6 @@ export class UpdateUserDto {
   @IsAlpha()
   @Length(2, 30)
   lastName: string;
-
-  @IsEmail()
-  email: string;
 
   @IsString()
   @Length(11, 11)
