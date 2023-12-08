@@ -15,6 +15,7 @@ import { ParseBoolPipe } from '@nestjs/common/pipes/parse-bool.pipe';
 import { ParseIntPipe } from '@nestjs/common/pipes/parse-int.pipe';
 import { ParseUUIDPipe } from '@nestjs/common/pipes/parse-uuid.pipe';
 import { ApiTags } from '@nestjs/swagger';
+import { MessageDto } from '../../common/dtos/message.dto';
 import { CustomApiCreateUserResponse } from './decorators/api-create-user-response.decorator';
 import { CustomApiFindUserResponse } from './decorators/api-find-user-response.decorator';
 import { CustomApiUpdateUserResponse } from './decorators/api-update-user-response.decorator';
@@ -34,7 +35,7 @@ export class UsersController {
   @Post('create')
   @HttpCode(201)
   @CustomApiCreateUserResponse()
-  create(@Body() body: CreateUserDto) {
+  create(@Body() body: CreateUserDto): Promise<MessageDto> {
     return this.useCase.create(body);
   }
 
@@ -93,17 +94,17 @@ export class UsersController {
   }
 
   @Patch('disabled/:id')
-  disable(@Param('id', ParseUUIDPipe) id: string) {
+  disable(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     return this.useCase.disable(id);
   }
 
   @Patch('enabled/:id')
-  enable(@Param('id', ParseUUIDPipe) id: string) {
+  enable(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     return this.useCase.enable(id);
   }
 
   @Delete('deleted/:id')
-  delete(@Param('id', ParseUUIDPipe) id: string) {
+  delete(@Param('id', ParseUUIDPipe) id: string): Promise<MessageDto> {
     return this.useCase.delete(id);
   }
 
@@ -111,12 +112,12 @@ export class UsersController {
   updateEmail(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateEmailUserDto,
-  ) {
+  ): Promise<MessageDto> {
     return this.useCase.updateEmail(id, body.email);
   }
 
   @Patch('update-password/:id')
-  updatePassword(@Param('id', ParseUUIDPipe) id: string) {
+  updatePassword(@Param('id', ParseUUIDPipe) id: string): Promise<MessageDto> {
     return this.useCase.updatePassword(id);
   }
 
@@ -124,7 +125,7 @@ export class UsersController {
   updateImage(
     @Body() dto: UploadFileUserDto,
     @Param('id', ParseUUIDPipe) id: string,
-  ) {
+  ): Promise<UserResponseDto> {
     const file = dto.file;
     return this.useCase.updateImage(id, file);
   }

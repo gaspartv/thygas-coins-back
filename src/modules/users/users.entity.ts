@@ -191,7 +191,7 @@ export class User extends DateClass {
     }
   }
 
-  setImageUri(imageUri: string | null): void {
+  setImageUri(imageUri?: string): void {
     if (imageUri) {
       const regex = /\.(jpg|jpeg|png|gif|bmp|tiff|tif|svg|webp|ico)$/;
       if (regex.test(imageUri)) {

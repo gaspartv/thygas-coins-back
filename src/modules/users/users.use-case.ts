@@ -114,8 +114,8 @@ export class UsersUseCase {
     if (user.disabledAt === null) user.setDisabledAt(new Date());
     user.setUpdatedAt(new Date());
     user.setDeletedAt(new Date());
-    const save = await this.service.save(user);
-    return UserMapper.response(save);
+    await this.service.save(user);
+    return { message: 'Deleted user successfully' };
   }
 
   async updateEmail(id: string, email: string) {
