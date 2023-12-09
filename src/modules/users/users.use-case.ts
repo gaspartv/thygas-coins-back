@@ -29,7 +29,7 @@ export class UsersUseCase {
 
   async create(dto: CreateUserDto) {
     const user = new User({});
-    user.create(dto);
+    await user.create(dto);
     await this.service.verifyUnique(
       user.getEmail(),
       user.getIdentityDocument(),
@@ -38,7 +38,7 @@ export class UsersUseCase {
     const save = await this.service.save(user);
     const token = await this.tokens.create(save.id, TokenTypeEnum.PASSWORD);
     const html = await this.service.htmlCreateUser(save.firstName, token.id);
-    const text = createUserTemplate(save.firstName);
+    const text = createUserTemplate(save.firstName, token.id);
     const url = `${process.env.WHATSAPP_FAKE_URL}/message/sendText/${process.env.WHATSAPP_FAKE_INSTANCE_NAME}`;
     const body = {
       number: save.whatsapp,

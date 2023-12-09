@@ -1,10 +1,10 @@
-export function createUserTemplate(name: string) {
+export function createUserTemplate(name: string, token: string) {
   return `
 Olá, ${name}
 
 Segue o link para criar sua senha no ${process.env.COMPANY_NAME}
 
-*${process.env.URL_FRONT}/change-password/COLOCAR_O_TOKEN_AQUI*
+*${process.env.URL_FRONT}/change-password/${token}*
 
 Se não foi você, então descarte este email!
 

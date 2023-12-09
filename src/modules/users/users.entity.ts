@@ -265,7 +265,7 @@ export class User extends DateClass {
     }
   }
 
-  create(dto: CreateUserDto): void {
+  async create(dto: CreateUserDto): Promise<void> {
     const password = randomUUID();
     this.setWhatsapp(dto.whatsapp);
     this.setId(randomUUID());
@@ -276,7 +276,7 @@ export class User extends DateClass {
     this.setFirstName(dto.firstName);
     this.setLastName(dto.lastName);
     this.setEmail(dto.email);
-    this.setPassword(password);
+    await this.setPassword(password);
     this.setIdentityDocument(dto.identityDocument);
     this.setDarkMode(dto.darkMode);
     this.setLanguage(dto.language);
