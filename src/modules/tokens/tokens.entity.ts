@@ -139,4 +139,22 @@ export class Tokens extends DateClass {
     this.setUsedAt(null);
     this.setUserId(userId);
   }
+
+  verifyExpiresAt() {
+    if (this.expiresAt < new Date()) {
+      throw new ConflictException('token expired');
+    }
+  }
+
+  verifyUsedAt() {
+    if (this.usedAt) {
+      throw new ConflictException('token already used');
+    }
+  }
+
+  verifyRevokedAt() {
+    if (this.revokedAt) {
+      throw new ConflictException('token revoked');
+    }
+  }
 }

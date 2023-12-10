@@ -23,6 +23,8 @@ import { OrderByUserDto } from './dtos/internal/order-user.dto';
 import { CreateUserDto } from './dtos/request/create-user.dto';
 import { UpdateEmailUserDto } from './dtos/request/update-email-user.dto';
 import { UploadFileUserDto } from './dtos/request/update-image-user.dto';
+import { ChangePasswordDto } from './dtos/request/update-password-change-user.dto';
+import { ResetPasswordDto } from './dtos/request/update-password-reset-user.dto';
 import { UpdateUserDto } from './dtos/request/update-user.dto';
 import { UserResponseDto } from './dtos/response/response-user.dto';
 import { UsersUseCase } from './users.use-case';
@@ -108,25 +110,56 @@ export class UsersController {
     return this.useCase.delete(id);
   }
 
-  @Patch('update-email/:id')
-  updateEmail(
-    @Param('id', ParseUUIDPipe) id: string,
+  @Patch('reset-email/:tokenId')
+  resetEmail(
+    @Param('tokenId', ParseUUIDPipe) tokenId: string,
     @Body() body: UpdateEmailUserDto,
-  ): Promise<MessageDto> {
-    return this.useCase.updateEmail(id, body.email);
+  ) {
+    return this.useCase.resetEmail(tokenId, body.email);
   }
 
-  @Patch('update-password/:id')
-  updatePassword(@Param('id', ParseUUIDPipe) id: string): Promise<MessageDto> {
-    return this.useCase.updatePassword(id);
+  @Patch('recovery-email/:id')
+  recoveryEmail(@Param('id', ParseUUIDPipe) id: string): Promise<MessageDto> {
+    return this.useCase.recoveryEmail(id);
+  }
+
+  @Patch('change-email/:id')
+  changeEmail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateEmailUserDto,
+  ) {
+    return this.useCase.changeEmail(id, body.email);
+  }
+
+  // PUBLIC
+  @Patch('recovery-password')
+  recoveryPassword(@Body() body: UpdateEmailUserDto): Promise<MessageDto> {
+    return this.useCase.recoveryPassword(body.email);
+  }
+
+  // PUBLIC
+  @Patch('reset-password/:tokenId')
+  resetPassword(
+    @Param('tokenId', ParseUUIDPipe) tokenId: string,
+    @Body() body: ResetPasswordDto,
+  ): Promise<MessageDto> {
+    return this.useCase.resetPassword(tokenId, body);
   }
 
   @Patch('update-image/:id')
   updateImage(
-    @Body() dto: UploadFileUserDto,
+    @Body() body: UploadFileUserDto,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<UserResponseDto> {
-    const file = dto.file;
+    const file = body.file;
     return this.useCase.updateImage(id, file);
+  }
+
+  @Patch('change-password/:id')
+  changePassword(
+    @Body() body: ChangePasswordDto,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<MessageDto> {
+    return this.useCase.changePassword(id, body);
   }
 }

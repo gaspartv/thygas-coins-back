@@ -183,7 +183,10 @@ export class User extends DateClass {
       /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
     if (regex.test(password) || uuidRegex.test(password)) {
-      this.password = await bcrypt.hash(password, 7);
+      this.password = await bcrypt.hash(
+        password,
+        Number(process.env.HASH_SALT),
+      );
     } else {
       throw new ConflictException(
         'the password must be between 8 and 50 characters long, contain at least one uppercase letter, one lowercase letter, one special character, and cannot have numeric or alphabetic sequences of three characters or more',
@@ -291,5 +294,23 @@ export class User extends DateClass {
     if (dto.whatsapp) this.setWhatsapp(dto.whatsapp);
     if (dto.darkMode) this.setDarkMode(dto.darkMode);
     if (dto.language) this.setLanguage(dto.language);
+  }
+
+  verifyPassword(new_password: string, confirm_new_password: string): void {
+    if (new_password !== confirm_new_password) {
+      throw new ConflictException('new passwords do not match');
+    }
+  }
+
+  verifyPasswordEqual(new_password: string, password: string): void {
+    if (bcrypt.compareSync(new_password, password)) {
+      throw new ConflictException('password is match');
+    }
+  }
+
+  verifyPasswordNotEqual(new_password: string, password: string): void {
+    if (!bcrypt.compareSync(new_password, password)) {
+      throw new ConflictException('password do not match');
+    }
   }
 }
