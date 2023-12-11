@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
-import { PrismaService } from '../../../../common/config/prisma/prisma.service';
+import { PrismaService } from '../../../../providers/prisma/prisma.service';
 import { FindTokenDto } from '../../dtos/internal/find.dto';
 import { TokenResponseDto } from '../../dtos/response/response-token.dto';
 import { Tokens } from '../../tokens.entity';

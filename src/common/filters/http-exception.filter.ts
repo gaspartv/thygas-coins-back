@@ -1,29 +1,27 @@
 import { Catch } from '@nestjs/common/decorators/core/catch.decorator';
-import { HttpStatus } from '@nestjs/common/enums/http-status.enum';
+import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { ExceptionFilter } from '@nestjs/common/interfaces/exceptions/exception-filter.interface';
 import { ArgumentsHost } from '@nestjs/common/interfaces/features/arguments-host.interface';
-import { FastifyReply } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
-@Catch()
+@Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<FastifyRequest>();
     const response = ctx.getResponse<FastifyReply>();
-    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-    let error = 'Internal Server Error';
-    let message: string[] = [];
-    if (exception.getStatus) {
-      statusCode = exception.getStatus();
-      error = exception.response.error || 'Internal Server Error';
-      message =
-        typeof exception.response.message === 'string'
-          ? [exception.response.message]
-          : exception.response.message || [error];
-    }
-    response.status(statusCode).send({
-      message,
-      error,
-      statusCode,
+    const status = exception.getStatus();
+    const exceptionResponse = exception.getResponse();
+
+    response.status(status).send({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      method: request.method,
+      message:
+        exceptionResponse instanceof Object
+          ? exceptionResponse
+          : [exceptionResponse],
     });
   }
 }

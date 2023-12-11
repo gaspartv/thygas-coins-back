@@ -1,6 +1,6 @@
-import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 import { TokenResponseDto } from './dtos/response/response-token.dto';
 import { TokenTypeEnum } from './enum/token-type.enum';
 import { TokensRepository } from './repositories/tokens.repository';

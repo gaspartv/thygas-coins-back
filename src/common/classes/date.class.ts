@@ -23,15 +23,12 @@ export class DateClass {
   getCreatedAt(): Date {
     return this.createdAt;
   }
-
   getUpdatedAt(): Date {
     return this.updatedAt;
   }
-
   getDisabledAt(): Date {
     return this.disabledAt;
   }
-
   getDeletedAt(): Date {
     return this.deletedAt;
   }
@@ -43,7 +40,6 @@ export class DateClass {
       throw new ConflictException('createdAt must be of type Date');
     }
   }
-
   setUpdatedAt(updatedAt: Date): void {
     if (updatedAt instanceof Date) {
       this.updatedAt = updatedAt;
@@ -51,7 +47,6 @@ export class DateClass {
       throw new ConflictException('updatedAt must be of type Date');
     }
   }
-
   setDisabledAt(disabledAt: Date | null): void {
     if (disabledAt instanceof Date || disabledAt === null) {
       this.disabledAt = disabledAt;
@@ -59,7 +54,6 @@ export class DateClass {
       throw new ConflictException('disabledAt must be of type Date');
     }
   }
-
   setDeletedAt(deletedAt: Date | null): void {
     if (deletedAt instanceof Date || deletedAt === null) {
       this.deletedAt = deletedAt;

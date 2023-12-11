@@ -1,6 +1,6 @@
-import { NotFoundException } from '@nestjs/common';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
+import { NotFoundException } from '@nestjs/common/exceptions/not-found.exception';
 import { join } from 'path';
 import { FileProvider } from '../../providers/file/file.provider';
 import { HttpService } from '../../providers/http/http.provider';

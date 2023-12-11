@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
-import { PrismaService } from '../../../../common/config/prisma/prisma.service';
+import { PrismaService } from '../../../../providers/prisma/prisma.service';
 import { FindManyUserDto } from '../../dtos/internal/find-many-user.dto';
 import { FindUserDto } from '../../dtos/internal/find-user.dto';
 import { OrderByUserDto } from '../../dtos/internal/order-user.dto';
@@ -20,9 +20,7 @@ export class UsersPrismaRepository implements UsersRepository {
   }
 
   async find(where: FindUserDto): Promise<UserResponseDto> {
-    return await this.prisma.user.findFirst({
-      where,
-    });
+    return await this.prisma.user.findFirst({ where });
   }
 
   async findMany(

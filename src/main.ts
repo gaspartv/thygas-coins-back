@@ -1,4 +1,4 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, NestInterceptor, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -8,7 +8,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyFileUpload from 'fastify-file-upload';
 import { join } from 'path';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { PrismaClientExceptionFilter } from './providers/prisma/prisma.exception.filter';
+import { TransformationInterceptor } from './common/interceptors/http-global.interceptor';
 import { mainDirname } from './root-dirname';
 
 async function bootstrap() {
@@ -51,7 +52,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.useGlobalFilters(new HttpExceptionFilter());
+  const httpAdapter = app.getHttpAdapter();
+  app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapter));
+  app.useGlobalInterceptors(new TransformationInterceptor<NestInterceptor>());
 
   await app.listen(Number(process.env.PORT), '0.0.0.0', () => {
     Logger.log(`>>> Server is running on port ${process.env.PORT}`);
