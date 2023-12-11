@@ -8,6 +8,8 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ScheduleModule } from '@nestjs/schedule';
 import { IsAdminGuard } from './common/guards/is-admin.guard';
+import { IsSuperGuard } from './common/guards/is-super.guard';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { JwtGuard } from './modules/sessions/guards/session.guard';
 import { RefreshTokenMiddleware } from './modules/sessions/middlewares/refresh-token.middleware';
 import { SessionsModule } from './modules/sessions/sessions.module';
@@ -21,6 +23,7 @@ import { EmailModule } from './providers/mail/email.module';
 
 @Module({
   imports: [
+    MaintenanceModule,
     CronModule,
     SessionsModule,
     TokensModule,
@@ -46,6 +49,7 @@ import { EmailModule } from './providers/mail/email.module';
     JwtStrategy,
     { provide: APP_GUARD, useClass: JwtGuard },
     { provide: APP_GUARD, useClass: IsAdminGuard },
+    { provide: APP_GUARD, useClass: IsSuperGuard },
   ],
   exports: [JwtStrategy],
 })

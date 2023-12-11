@@ -249,9 +249,6 @@ export class User extends DateClass {
   setPolice(police: UserPoliceEnum): void {
     if (Object.values(UserPoliceEnum).includes(police)) {
       switch (police) {
-        case UserPoliceEnum.VIEWER:
-          this.police = UserPolice.VIEWER;
-          break;
         case UserPoliceEnum.ADMIN:
           this.police = UserPolice.ADMIN;
           break;

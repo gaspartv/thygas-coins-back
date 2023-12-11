@@ -16,7 +16,6 @@ enum Language {
 
 enum UserPolice {
   NORMAL @map("normal")
-  VIEWER @map("viewer")
   ADMIN  @map("admin")
   SUPER  @map("super")
 
@@ -47,8 +46,9 @@ model User {
   language         Language   @default(PT_BR)
   police           UserPolice @default(NORMAL)
 
-  Tokens   Token[]
-  Sessions Session[]
+  Tokens      Token[]
+  Sessions    Session[]
+  Maintenance SystemMaintenance[]
 
   @@map("users")
 }
@@ -79,4 +79,16 @@ model Session {
   userId String @db.Uuid
 
   @@map("sessions")
+} 
+
+model SystemMaintenance {
+  id               String    @id @default(uuid()) @db.Uuid
+  startMaintenance DateTime  @default(now())
+  endMaintenance   DateTime?
+  description      String?
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+
+  @@map("system-maintenance")
 }
