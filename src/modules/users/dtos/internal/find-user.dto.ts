@@ -1,3 +1,5 @@
+import { UserPolice } from '@prisma/client';
+
 export class FindUserDto {
   id?: string;
   disabledAt?: Date;
@@ -8,4 +10,5 @@ export class FindUserDto {
   imageUri?: string;
   identityDocument?: string;
   whatsapp?: string;
+  police?: UserPolice;
 }

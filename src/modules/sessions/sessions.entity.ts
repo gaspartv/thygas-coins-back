@@ -1,4 +1,6 @@
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
+import { UnauthorizedException } from '@nestjs/common/exceptions/unauthorized.exception';
+import { compareSync } from 'bcrypt';
 import { randomUUID } from 'crypto';
 
 interface SessionInterface {
@@ -109,5 +111,12 @@ export class Session {
     this.setDisconnectedAt(null);
     this.setExpiresAt();
     this.setUserId(userId);
+  }
+
+  comparePassword(password: string, passwordDb: string) {
+    const passwordIsCorrect = compareSync(password, passwordDb);
+    if (!passwordIsCorrect) {
+      throw new UnauthorizedException('invalid email or password');
+    }
   }
 }

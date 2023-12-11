@@ -1,12 +1,12 @@
 export interface JwtPayloadInterface {
   iat?: number;
   exp?: number;
-  sign: ISign;
+  sign: SignInterface;
 }
-export interface IApplication {
-  sign: ISign;
+export interface ApplicationInterface {
+  sign: SignInterface;
 }
-export interface ISign {
+export interface SignInterface {
   sub: string;
   sessionId: string;
 }

@@ -34,7 +34,7 @@ export class TransformationInterceptor<T>
         statusCode: response.statusCode,
         method: httpContext.getRequest().method,
         timestamp: new Date().toISOString(),
-        token,
+        accessToken: token,
         data,
       })),
     );

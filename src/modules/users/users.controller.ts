@@ -15,7 +15,11 @@ import { ParseBoolPipe } from '@nestjs/common/pipes/parse-bool.pipe';
 import { ParseIntPipe } from '@nestjs/common/pipes/parse-int.pipe';
 import { ParseUUIDPipe } from '@nestjs/common/pipes/parse-uuid.pipe';
 import { ApiTags } from '@nestjs/swagger';
+import { IsAdmin } from '../../common/decorators/is-admin.decorator';
 import { MessageDto } from '../../common/dtos/message.dto';
+import { IsPublic } from '../sessions/decorators/is-public.decorator';
+import { Sign } from '../sessions/decorators/sign.decorator';
+import { SignInterface } from '../sessions/interfaces/jwt-payload.interface';
 import { CustomApiCreateUserResponse } from './decorators/api-create-user-response.decorator';
 import { CustomApiFindUserResponse } from './decorators/api-find-user-response.decorator';
 import { CustomApiUpdateUserResponse } from './decorators/api-update-user-response.decorator';
@@ -35,6 +39,7 @@ export class UsersController {
   constructor(private readonly useCase: UsersUseCase) {}
 
   @Post('create')
+  @IsPublic()
   @HttpCode(201)
   @CustomApiCreateUserResponse()
   create(@Body() body: CreateUserDto): Promise<MessageDto> {
@@ -42,6 +47,7 @@ export class UsersController {
   }
 
   @Patch('update/:id')
+  @IsAdmin()
   @HttpCode(200)
   @CustomApiUpdateUserResponse()
   update(
@@ -51,7 +57,18 @@ export class UsersController {
     return this.useCase.update(id, body);
   }
 
+  @Patch('update-self')
+  @HttpCode(200)
+  @CustomApiUpdateUserResponse()
+  updateSelf(
+    @Sign() sign: SignInterface,
+    @Body() body: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    return this.useCase.update(sign.sub, body);
+  }
+
   @Get('find/:id')
+  @IsAdmin()
   @HttpCode(200)
   @CustomApiFindUserResponse()
   find(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
@@ -59,6 +76,7 @@ export class UsersController {
   }
 
   @Get('find-many')
+  @IsAdmin()
   @HttpCode(200)
   findMany(
     @Query('page', new ParseIntPipe({ optional: true })) page: number,
@@ -96,21 +114,46 @@ export class UsersController {
   }
 
   @Patch('disabled/:id')
+  @IsAdmin()
+  @HttpCode(200)
   disable(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     return this.useCase.disable(id);
   }
 
+  @Patch('disabled-self')
+  @HttpCode(200)
+  disableSelf(@Sign() sign: SignInterface): Promise<UserResponseDto> {
+    return this.useCase.disable(sign.sub);
+  }
+
   @Patch('enabled/:id')
+  @IsAdmin()
+  @HttpCode(200)
   enable(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     return this.useCase.enable(id);
   }
 
+  @Patch('enabled-self')
+  @HttpCode(200)
+  enableSelf(@Sign() sign: SignInterface): Promise<UserResponseDto> {
+    return this.useCase.enable(sign.sub);
+  }
+
   @Delete('deleted/:id')
+  @IsAdmin()
+  @HttpCode(200)
   delete(@Param('id', ParseUUIDPipe) id: string): Promise<MessageDto> {
     return this.useCase.delete(id);
   }
 
+  @Delete('deleted-self')
+  @HttpCode(200)
+  deleteSelf(@Sign() sign: SignInterface): Promise<MessageDto> {
+    return this.useCase.delete(sign.sub);
+  }
+
   @Patch('reset-email/:tokenId')
+  @HttpCode(200)
   resetEmail(
     @Param('tokenId', ParseUUIDPipe) tokenId: string,
     @Body() body: UpdateEmailUserDto,
@@ -118,27 +161,28 @@ export class UsersController {
     return this.useCase.resetEmail(tokenId, body.email);
   }
 
-  @Patch('recovery-email/:id')
-  recoveryEmail(@Param('id', ParseUUIDPipe) id: string): Promise<MessageDto> {
-    return this.useCase.recoveryEmail(id);
+  @Patch('recovery-email')
+  @HttpCode(200)
+  recoveryEmail(@Sign() sign: SignInterface): Promise<MessageDto> {
+    return this.useCase.recoveryEmail(sign.sub);
   }
 
-  @Patch('change-email/:id')
-  changeEmail(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() body: UpdateEmailUserDto,
-  ) {
-    return this.useCase.changeEmail(id, body.email);
+  @Patch('change-email')
+  @HttpCode(200)
+  changeEmail(@Sign() sign: SignInterface, @Body() body: UpdateEmailUserDto) {
+    return this.useCase.changeEmail(sign.sub, body.email);
   }
 
-  // PUBLIC
   @Patch('recovery-password')
+  @IsPublic()
+  @HttpCode(200)
   recoveryPassword(@Body() body: UpdateEmailUserDto): Promise<MessageDto> {
     return this.useCase.recoveryPassword(body.email);
   }
 
-  // PUBLIC
   @Patch('reset-password/:tokenId')
+  @IsPublic()
+  @HttpCode(200)
   resetPassword(
     @Param('tokenId', ParseUUIDPipe) tokenId: string,
     @Body() body: ResetPasswordDto,
@@ -146,7 +190,28 @@ export class UsersController {
     return this.useCase.resetPassword(tokenId, body);
   }
 
+  @Patch('change-password/:id')
+  @IsAdmin()
+  @HttpCode(200)
+  changePassword(
+    @Body() body: ChangePasswordDto,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<MessageDto> {
+    return this.useCase.changePassword(id, body);
+  }
+
+  @Patch('change-password-self')
+  @HttpCode(200)
+  changePasswordSelf(
+    @Body() body: ChangePasswordDto,
+    @Sign() sign: SignInterface,
+  ): Promise<MessageDto> {
+    return this.useCase.changePassword(sign.sub, body);
+  }
+
   @Patch('update-image/:id')
+  @IsAdmin()
+  @HttpCode(200)
   updateImage(
     @Body() body: UploadFileUserDto,
     @Param('id', ParseUUIDPipe) id: string,
@@ -155,11 +220,19 @@ export class UsersController {
     return this.useCase.updateImage(id, file);
   }
 
-  @Patch('change-password/:id')
-  changePassword(
-    @Body() body: ChangePasswordDto,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<MessageDto> {
-    return this.useCase.changePassword(id, body);
+  @Patch('update-image-self')
+  @HttpCode(200)
+  updateImageSelf(
+    @Body() body: UploadFileUserDto,
+    @Sign() sign: SignInterface,
+  ): Promise<UserResponseDto> {
+    const file = body.file;
+    return this.useCase.updateImage(sign.sub, file);
+  }
+
+  @Get('profile')
+  @HttpCode(200)
+  profile(@Sign() sign: SignInterface) {
+    return this.useCase.profile(sign.sub);
   }
 }

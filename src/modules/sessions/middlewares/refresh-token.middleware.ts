@@ -37,10 +37,11 @@ export class RefreshTokenMiddleware implements NestMiddleware {
 
       if (validateDecoded) throw new UnauthorizedException('invalid token');
       const userId = decoded.sign.sub;
+      const url = req.originalUrl;
       const user = await this.usersRepository.find({
         id: userId,
         deletedAt: null,
-        disabledAt: null,
+        disabledAt: url.includes('users/enabled') ? undefined : null,
       });
       if (!user) throw new UnauthorizedException('invalid token');
       const sessionFound = await this.sessionsRepository.find({

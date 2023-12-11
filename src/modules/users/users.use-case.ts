@@ -249,4 +249,9 @@ export class UsersUseCase {
     await this.service.save(user);
     return { message: 'Password updated successfully' };
   }
+
+  async profile(userId: string) {
+    const user = await this.service.findOrThrow(userId);
+    return UserMapper.response(user);
+  }
 }
