@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
+import { Logger } from '@nestjs/common/services/logger.service';
 
 @Injectable()
 export class HttpService {
@@ -7,6 +8,8 @@ export class HttpService {
       method: 'POST',
       body: JSON.stringify(dto),
       headers,
-    }).then((res) => res);
+    })
+      .then((res) => res)
+      .catch((err) => Logger.error(err.message));
   }
 }

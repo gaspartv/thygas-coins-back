@@ -5,7 +5,7 @@ import { join } from 'path';
 import { FileProvider } from '../../providers/file/file.provider';
 import { HttpService } from '../../providers/http/http.provider';
 import { createUserTemplate } from '../../providers/http/templates/create-user';
-import { EmailProvider } from '../../providers/mail/email.service';
+import { EmailProvider } from '../../providers/mail/email.provider';
 import { TokenTypeEnum } from '../tokens/enum/token-type.enum';
 import { Tokens } from '../tokens/tokens.entity';
 import { TokensService } from '../tokens/tokens.service';

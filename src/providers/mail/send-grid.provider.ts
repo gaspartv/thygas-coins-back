@@ -1,15 +1,10 @@
 import { SendGridService } from '@anchan828/nest-sendgrid';
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
-
-class Send {
-  to: string;
-  subject: string;
-  text?: string;
-  html?: string;
-}
+import { Send } from './dtos/email-send.dto';
+import { EmailProvider } from './email.provider';
 
 @Injectable()
-export class EmailProvider {
+export class SendGridProvider implements EmailProvider {
   constructor(private readonly sendGrid: SendGridService) {}
 
   async send(dto: Send) {
