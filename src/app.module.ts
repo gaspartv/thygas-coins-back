@@ -1,6 +1,6 @@
 import { SendGridModule } from '@anchan828/nest-sendgrid';
-import { MiddlewareConsumer } from '@nestjs/common';
 import { Module } from '@nestjs/common/decorators/modules/module.decorator';
+import { MiddlewareConsumer } from '@nestjs/common/interfaces/middleware/middleware-consumer.interface';
 import { NestModule } from '@nestjs/common/interfaces/modules/nest-module.interface';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';

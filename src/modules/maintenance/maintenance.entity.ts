@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { randomUUID } from 'crypto';
 
 interface MaintenanceInterface {

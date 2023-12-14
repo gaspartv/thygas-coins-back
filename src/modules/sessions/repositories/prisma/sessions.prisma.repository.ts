@@ -27,6 +27,16 @@ export class SessionsPrismaRepository implements SessionsRepository {
     });
   }
 
+  async disconnectedManyNot(userId: string): Promise<{ count: number }> {
+    return await this.prisma.session.updateMany({
+      where: {
+        userId: { not: userId },
+        disconnectedAt: null,
+      },
+      data: { disconnectedAt: new Date() },
+    });
+  }
+
   async find(where: FindSessionDto): Promise<SessionResponseDto> {
     return await this.prisma.session.findFirst({ where });
   }

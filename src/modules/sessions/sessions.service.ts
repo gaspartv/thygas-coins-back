@@ -19,6 +19,10 @@ export class SessionsService {
     return this.repository.disconnectedMany(userId);
   }
 
+  async disconnectedManyNot(userId: string) {
+    return this.repository.disconnectedManyNot(userId);
+  }
+
   async generateToken(userId: string, sessionId: string): Promise<string> {
     const payload = {
       sign: {

@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common/decorators/core/injectable.decorator';
+import { MessageDto } from '../../common/dtos/message.dto';
+import { SessionsService } from '../sessions/sessions.service';
 import { CreateMaintenanceDto } from './dtos/request/create-maintenance.dto';
 import { MaintenanceResponseDto } from './dtos/response/response-maintenance.dto';
 import { Maintenance } from './maintenance.entity';
-import { MaintenanceRepository } from './repositories/maintenance.repository';
+import { MaintenanceService } from './maintenance.service';
 
 @Injectable()
 export class MaintenanceUseCase {
-  constructor(private readonly repository: MaintenanceRepository) {}
+  constructor(
+    private readonly service: MaintenanceService,
+    private readonly sessionsService: SessionsService,
+  ) {}
 
   async startMaintenance(
     userId: string,
@@ -14,6 +19,12 @@ export class MaintenanceUseCase {
   ): Promise<MaintenanceResponseDto> {
     const maintenance = new Maintenance({});
     maintenance.create(userId, dto.description);
-    return await this.repository.save(maintenance);
+    await this.sessionsService.disconnectedManyNot(userId);
+    return await this.service.save(maintenance);
+  }
+
+  async endMaintenance(): Promise<MessageDto> {
+    await this.service.disabledMany({});
+    return { message: 'maintenance is disabled' };
   }
 }

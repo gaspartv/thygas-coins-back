@@ -18,6 +18,6 @@ import { SessionsUseCase } from './sessions.use-case';
       useClass: SessionsPrismaRepository,
     },
   ],
-  exports: [SessionsRepository],
+  exports: [SessionsRepository, SessionsService],
 })
 export class SessionsModule {}
