@@ -19,14 +19,24 @@ enum UserPolice {
   ADMIN  @map("admin")
   SUPER  @map("super")
 
-  @@map("user_polices")
+  @@map("user-polices")
 }
 
 enum TokenType {
   EMAIL    @map("email")
   PASSWORD @map("password")
 
-  @@map("token_type")
+  @@map("token-type")
+}
+
+enum ContactType {
+  EMAIL
+  PHONE
+  WHATSAPP
+  FACEBOOK
+  INSTAGRAM
+
+  @@map("contact-type")
 }
 
 model User {
@@ -41,10 +51,14 @@ model User {
   password         String
   imageUri         String?
   identityDocument String     @unique
-  whatsapp         String     @unique
+  whatsapp         String?    @unique
   darkMode         Boolean    @default(false)
   language         Language   @default(PT_BR)
   police           UserPolice @default(NORMAL)
+
+  isOwner    Company? @relation("owner")
+  isEmployee Company? @relation("employees", references: [id], fields: [companyId])
+  companyId  String?  @db.Uuid
 
   Tokens      Token[]
   Sessions    Session[]
@@ -79,7 +93,7 @@ model Session {
   userId String @db.Uuid
 
   @@map("sessions")
-} 
+}
 
 model SystemMaintenance {
   id               String    @id @default(uuid()) @db.Uuid
@@ -91,4 +105,49 @@ model SystemMaintenance {
   userId String @db.Uuid
 
   @@map("system-maintenance")
+}
+
+model Company {
+  id            String   @id @default(uuid()) @db.Uuid
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  corporateName String   @unique
+  tradingName   String
+  cnpj          String   @unique
+  phone         String
+  whatsapp      String?
+  email         String
+  imageUri      String?
+
+  isOwner User   @relation("owner", fields: [ownerId], references: [id])
+  ownerId String @unique @db.Uuid
+
+  contacts CompanyContact[]
+
+  employees User[] @relation("employees")
+
+  Config   CompanyConfig @relation(fields: [configId], references: [id])
+  configId String        @unique @db.Uuid
+
+  @@map("companies")
+}
+
+model CompanyContact {
+  id   String      @id @default(uuid()) @db.Uuid
+  type ContactType
+  body String
+
+  Company   Company @relation(fields: [companyId], references: [id])
+  companyId String  @db.Uuid
+
+  @@map("companies-contacts")
+}
+
+model CompanyConfig {
+  id    String @id @default(uuid()) @db.Uuid
+  color String @default("#005cc8")
+
+  Company Company?
+
+  @@map("companies-configs")
 }
