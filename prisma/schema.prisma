@@ -39,8 +39,27 @@ enum ContactType {
   @@map("contact-type")
 }
 
+enum PoliceEmployee {
+  ATTENDANT
+  MARKETING
+  SALES
+  MANAGER
+
+  @@map("police-employees")
+}
+
+enum ChatType {
+  WHATSAPP
+  INSTAGRAM
+  FACEBOOK
+  WHATSAPP_NOT
+
+  @@map("chat-types")
+}
+
 model User {
   id               String     @id @default(uuid()) @db.Uuid
+  code             String     @unique
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   disabledAt       DateTime?
@@ -51,15 +70,18 @@ model User {
   password         String
   imageUri         String?
   identityDocument String     @unique
+  phoneNumber      String?
   whatsapp         String?    @unique
   darkMode         Boolean    @default(false)
   language         Language   @default(PT_BR)
   police           UserPolice @default(NORMAL)
 
-  isOwner    Company? @relation("owner")
-  isEmployee Company? @relation("employees", references: [id], fields: [companyId])
-  companyId  String?  @db.Uuid
+  isOwner Company? @relation("owner")
 
+  EmployeeIn Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @unique @db.Uuid
+
+  ClientIn    Client[]
   Tokens      Token[]
   Sessions    Session[]
   Maintenance SystemMaintenance[]
@@ -119,15 +141,17 @@ model Company {
   email         String
   imageUri      String?
 
-  isOwner User   @relation("owner", fields: [ownerId], references: [id])
+  Owner   User   @relation("owner", fields: [ownerId], references: [id])
   ownerId String @unique @db.Uuid
-
-  contacts CompanyContact[]
-
-  employees User[] @relation("employees")
 
   Config   CompanyConfig @relation(fields: [configId], references: [id])
   configId String        @unique @db.Uuid
+
+  Contacts                CompanyContact[]
+  Employees               Employee[]
+  ConversationSuggestions ConversationSuggestion[]
+  Chats                   Chat[]
+  Clients                 Client[]
 
   @@map("companies")
 }
@@ -150,4 +174,253 @@ model CompanyConfig {
   Company Company?
 
   @@map("companies-configs")
+}
+
+model Cart {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("carts")
+}
+
+model Department {
+  id         String    @id @default(uuid()) @db.Uuid
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  disabledAt DateTime?
+
+  name        String
+  description String?
+
+  Products              Product[]
+  ChatHistory           ChatHistory[]
+  EmployeesInDepartment EmployeeInDepartment[]
+  Chats                 Chat[]
+
+  @@map("departments")
+}
+
+model EmployeeInDepartment {
+  id         String         @id @default(uuid()) @db.Uuid
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  disabledAt DateTime?
+  position   PoliceEmployee
+
+  Department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String     @db.Uuid
+
+  Employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String   @db.Uuid
+
+  @@map("employee-in-departments")
+}
+
+model Product {
+  id                 String    @id @default(uuid()) @db.Uuid
+  sku                String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  disabledAt         DateTime?
+  deletedAt          DateTime?
+  name               String
+  description        String
+  price              Int
+  quantityInStock    Int       @default(0)
+  imageUri           String[]
+  manufacturerInfo   String
+  weight             Float?
+  dimensions         String?
+  tags               String[]
+  percentageDiscount Int?
+
+  Departments Department[]
+  Reviews     ProductReview[]
+  Options     ProductOption[]
+
+  @@map("products")
+}
+
+model ProductOption {
+  id     String   @id @default(uuid()) @db.Uuid
+  name   String
+  values String[]
+
+  Product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.Uuid
+
+  @@map("product-options")
+}
+
+model ProductReview {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  text      String
+  rating    Int
+
+  Product   Product @relation(fields: [productId], references: [id])
+  productId String  @db.Uuid
+
+  @@map("product-reviews")
+}
+
+model Coupon {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("coupons")
+}
+
+model Request {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("requests")
+}
+
+model Assessment {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("assessments")
+}
+
+model Message {
+  id             String    @id @default(uuid()) @db.Uuid
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  disabledAt     DateTime?
+  body           String
+  senderByClient Boolean   @default(false)
+
+  ChatHistory   ChatHistory @relation(fields: [chatHistoryId], references: [id])
+  chatHistoryId String      @db.Uuid
+
+  Chat   Chat   @relation(fields: [chatId], references: [id])
+  chatId String @db.Uuid
+
+  @@map("messages")
+}
+
+model Chat {
+  id            String    @id @default(uuid()) @db.Uuid
+  createdAt     DateTime  @default(now())
+  closedAt      DateTime?
+  requestNumber String?
+  type          ChatType
+  businessId    String
+
+  Client   Client @relation(fields: [clientId], references: [id])
+  clientId String @db.Uuid
+
+  Attendant  Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @db.Uuid
+
+  Department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String     @db.Uuid
+
+  Company   Company @relation(fields: [companyId], references: [id])
+  companyId String  @db.Uuid
+
+  ChatHistory ChatHistory[]
+  Messages    Message[]
+
+  @@map("chats")
+}
+
+model Conversation {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("conversations")
+}
+
+model SocialNetwork {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("social-network")
+}
+
+model Client {
+  id String @id @default(uuid()) @db.Uuid
+
+  User   User   @relation(fields: [userId], references: [id])
+  userId String @db.Uuid
+
+  Company   Company @relation(fields: [companyId], references: [id])
+  companyId String  @db.Uuid
+
+  Chats Chat[]
+
+  @@map("clients")
+}
+
+model Employee {
+  id         String    @id @default(uuid()) @db.Uuid
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  disabledAt DateTime?
+
+  ChatHistory           ChatHistory[]
+  EmployeesInDepartment EmployeeInDepartment[]
+  Chats                 Chat[]
+
+  Company   Company @relation(fields: [companyId], references: [id])
+  companyId String  @db.Uuid
+
+  User User?
+
+  @@map("employees")
+}
+
+model Payment {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("payments")
+}
+
+model Delivery {
+  id String @id @default(uuid()) @db.Uuid
+
+  @@map("deliveries")
+}
+
+model ServiceAssessment {
+  id          String  @id @default(uuid()) @db.Uuid
+  stars       Int
+  description String?
+
+  ChatHistories ChatHistory[]
+
+  @@map("service-assessments")
+}
+
+model ConversationSuggestion {
+  id     String  @id @default(uuid()) @db.Uuid
+  name   String
+  ignore Boolean
+
+  Company   Company @relation(fields: [companyId], references: [id])
+  companyId String  @db.Uuid
+
+  @@map("conversation-suggestions")
+}
+
+model ChatHistory {
+  id            String    @id @default(uuid()) @db.Uuid
+  createdAt     DateTime  @default(now())
+  closedAt      DateTime?
+  requestNumber String?
+
+  Assessment   ServiceAssessment? @relation(fields: [assessmentId], references: [id])
+  assessmentId String?            @db.Uuid
+
+  Employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String   @db.Uuid
+
+  Department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String     @db.Uuid
+
+  Chat   Chat   @relation(fields: [chatId], references: [id])
+  chatId String @db.Uuid
+
+  Messages Message[]
+
+  @@map("chat-histories")
 }
