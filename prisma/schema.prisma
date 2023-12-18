@@ -81,10 +81,12 @@ model User {
   EmployeeIn Employee? @relation(fields: [employeeId], references: [id])
   employeeId String?   @unique @db.Uuid
 
-  ClientIn    Client[]
+  ClientIn    Company[]
   Tokens      Token[]
   Sessions    Session[]
   Maintenance SystemMaintenance[]
+  Coupons     Coupon[]
+  Chats       Chat[]
 
   @@map("users")
 }
@@ -151,7 +153,7 @@ model Company {
   Employees               Employee[]
   ConversationSuggestions ConversationSuggestion[]
   Chats                   Chat[]
-  Clients                 Client[]
+  Clients                 User[]
 
   @@map("companies")
 }
@@ -265,7 +267,12 @@ model ProductReview {
 }
 
 model Coupon {
-  id String @id @default(uuid()) @db.Uuid
+  id         String @id @default(uuid()) @db.Uuid
+  name       String
+  percentage Int
+
+  User   User?   @relation(fields: [userId], references: [id])
+  userId String? @db.Uuid
 
   @@map("coupons")
 }
@@ -307,7 +314,7 @@ model Chat {
   type          ChatType
   businessId    String
 
-  Client   Client @relation(fields: [clientId], references: [id])
+  Client   User   @relation(fields: [clientId], references: [id])
   clientId String @db.Uuid
 
   Attendant  Employee? @relation(fields: [employeeId], references: [id])
@@ -335,20 +342,6 @@ model SocialNetwork {
   id String @id @default(uuid()) @db.Uuid
 
   @@map("social-network")
-}
-
-model Client {
-  id String @id @default(uuid()) @db.Uuid
-
-  User   User   @relation(fields: [userId], references: [id])
-  userId String @db.Uuid
-
-  Company   Company @relation(fields: [companyId], references: [id])
-  companyId String  @db.Uuid
-
-  Chats Chat[]
-
-  @@map("clients")
 }
 
 model Employee {
